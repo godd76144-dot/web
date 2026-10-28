@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>燈泡大樂透（Lotto）</title>
+    <style>
+        .bulb-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .bulb-item {
+            text-align: center;
+        }
+        .win-badge {
+            color: green;
+            font-size: 24px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="background-color:rgb(241, 179, 149);">🎰 資三乙陳浡丞_燈泡大樂透</h1>
+    <p><b>遊戲教學：</b>當彩券號碼與開獎號碼一樣時，燈泡就會亮，每亮一個得10分，100分及過關</p>
+    <button class="refresh-btn" onclick="location.reload()">🌀重新開始</button>
+
+    <script>
+        let userNumbers = [];
+        let winningNumbers = [];
+        let totalScore = 0; // 紀錄遊戲總得分
+
+        // 燈泡開關控制函式
+        function light(sw, id) {
+            document.getElementById(id).src = sw ? 'pic/pic_bulbon.gif' : 'pic/pic_bulboff.gif';
+        }
+
+        // 根據中獎數量更新燈泡狀態、計算分數與檢查破關
+        function updateBulbs(count) {
+            let b1 = count >= 1 ? 1 : 0;
+            let b2 = count >= 2 ? 1 : 0;
+            let b3 = count >= 3 ? 1 : 0;
+
+            // 切換燈泡圖片
+            light(b1, 'img1');
+            light(b2, 'img2');
+            light(b3, 'img3');
+
+            // 算分數（每個亮燈 +10 分）
+            let currentScore = (b1 + b2 + b3) * 10;
+            totalScore += currentScore;
+
+            // 更新總分數文字
+            document.getElementById('total-score').innerText = '🏆 目前總得分：' + totalScore + ' / 100 分';
+
+            // 判斷是否達到 100 分過關條件
+            if (totalScore >= 100) {
+                document.getElementById('win-msg').style.display = 'block';
+                document.getElementById('check-btn').disabled = true; // 停用對獎按鈕
+                setTimeout(() => {
+                    alert('🎉 恭喜破關！您已達到 100 分！');
+                }, 100);
+            }
+        }
+    </script>
+    <hr>
+
+    <!-- 第一區塊：玩家選號區 -->
+    <h3 style="background-color:rgb(236, 187, 181);">1. 我的彩券號碼</h3>
+    <p id="my-numbers">請點擊下方按鈕進行選號</p>
+    
+    <button onclick="
+        userNumbers = [];
+        while (userNumbers.length < 6) {
+            let randNum = Math.floor(Math.random() * 49) + 1;
+            if (!userNumbers.includes(randNum)) {
+                userNumbers.push(randNum);
+            }
+        }
+        userNumbers.sort((a, b) => a - b);
+        document.getElementById('my-numbers').innerText = '我的號碼：' + userNumbers.join(', ');
+    ">🎲 自動選號</button>
+
+    <hr>
+
+    <!-- 第二區塊：電腦開獎區 -->
+    <h3 style="background-color:rgb(236, 187, 181);">2. 本期開獎號碼</h3>
+    <p id="draw-numbers">等待開獎中...</p>
+    
+    <button onclick="
+        winningNumbers = [];
+        while (winningNumbers.length < 6) {
+            let randNum = Math.floor(Math.random() * 49) + 1;
+            if (!winningNumbers.includes(randNum)) {
+                winningNumbers.push(randNum);
+            }
+        }
+        winningNumbers.sort((a, b) => a - b);
+        document.getElementById('draw-numbers').innerText = '開獎號碼：' + winningNumbers.join(', ');
+    ">🎉 開始開獎</button>
+
+    <hr>
+
+    <!-- 第三區塊：對獎結果區與得分紀錄 -->
+    <h3 style="background-color:rgb(236, 187, 181);">3. 對獎結果與中獎得分</h3>
+    <button id="check-btn" onclick="
+        if (userNumbers.length === 0 || winningNumbers.length === 0) {
+            alert('請先點擊「自動選號」與「開始開獎」！');
+        } else {
+            let matchCount = 0;
+            let matchedList = [];
+            
+            for (let i = 0; i < userNumbers.length; i++) {
+                if (winningNumbers.includes(userNumbers[i])) {
+                    matchCount++;
+                    matchedList.push(userNumbers[i]);
+                }
+            }
+
+            let resultText = '對中 ' + matchCount + ' 個號碼！';
+            if (matchCount > 0) {
+                resultText += '（對中號碼：' + matchedList.join(', ') + '）';
+            }
+
+            document.getElementById('result-text').innerText = resultText;
+            updateBulbs(matchCount);
+        }
+    ">🔍 進行對獎</button>
+
+    <p id="result-text" style="font-weight: bold;"></p>
+
+    <!-- 顯示累積總得分與破關訊息 -->
+    <h4 id="total-score" style="color: darkred; font-size: 20px;">🏆 目前總得分：0 / 100 分</h4>
+    <p id="win-msg" class="win-badge">👑 恭喜挑戰成功！已達成 100 分目標！</p>
+
+    <!-- 燈泡顯示區域 -->
+    <div class="bulb-container">
+        <div class="bulb-item">
+            <img id="img1" src="pic/pic_bulboff.gif" width="100" height="180">
+            <p>燈泡 1 (+10分)</p>
+        </div>
+        <div class="bulb-item">
+            <img id="img2" src="pic/pic_bulboff.gif" width="100" height="180">
+            <p>燈泡 2 (+10分)</p>
+        </div>
+        <div class="bulb-item">
+            <img id="img3" src="pic/pic_bulboff.gif" width="100" height="180">
+            <p>燈泡 3 (+10分)</p>
+        </div>
+    </div>
+
+</body>
+</html>
